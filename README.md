@@ -6,5 +6,5 @@ Browsers use it in JavaScript to embed binary data directly in code or HTML or f
 
 This is an in-browser base64 benchmark:
 
-- [Visit the benchmark](https://simdutf.github.io/browserbase64/html).
+- [Visit the benchmark](https://simdutf.github.io/browserbase64/index.html).
 
