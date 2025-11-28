@@ -35,6 +35,14 @@
 
 <p>This page benchmarks the <code>Uint8Array.toBase64()</code> and <code>Uint8Array.fromBase64()</code> methods that landed in browsers in 2025.</p>
 
+<p>These new functions are fast, simple and safe.</p>
+
+<pre class="code_syntax" style="color:#000000;background:#ffffff;"><span class="line_wrapper">const b64 <span style="color:#808030; ">=</span> Base64<span style="color:#808030; ">.</span>toBase64<span style="color:#808030; ">(</span><span style="color:#400000; ">bytes</span><span style="color:#808030; ">)</span><span style="color:#808030; ">;</span>      <span style="color:#44aadd; ">//</span> string          </span>
+<span class="line_wrapper">const recovered <span style="color:#808030; ">=</span> Base64<span style="color:#808030; ">.</span>fromBase64<span style="color:#808030; ">(</span>b64<span style="color:#808030; ">)</span><span style="color:#808030; ">;</span> <span style="color:#44aadd; ">//</span> Uint8Array<span style="color:#808030; ">,</span> matches original <span style="color:#800000; ">'</span><span style="color:#0000e6; ">bytes</span><span style="color:#800000; ">'</span></span></pre>
+
+<p>To see how fast they are in your browser, hit the button.</p>
+
+
 <div>
   <button id="start">Run Benchmark</button>
 </div>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Uint8Array Base64 API Demo</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .container { display: flex; gap: 20px; }
+        .column { flex: 1; }
+        img { max-width: 100%; height: auto; border: 1px solid #ccc; }
+        textarea { width: 100%; height: 100px; padding: 10px; box-sizing: border-box; }
+        button { padding: 10px 15px; background-color: #007bff; color: white; border: none; cursor: pointer; }
+        button:hover { background-color: #0056b3; }
+    </style>
+    <script>
+        // Polyfill/Shim for the Base64 global object using the new Uint8Array methods.
+        // In fully compliant browsers, you would not need this block.
+        if (typeof Base64 === 'undefined' && typeof Uint8Array.prototype.toBase64 === 'function') {
+            window.Base64 = {
+                toBase64: (bytes, options) => bytes.toBase64(options),
+                fromBase64: (b64, options) => Uint8Array.fromBase64(b64, options)
+            };
+        }
+    </script>
+</head>
+<body>
+
+    <h1>New JavaScript Base64 API Demo (Uint8Array Methods)</h1>
+    <p>This script demonstrates the use of the new Base64 encoding/decoding methods on the **Uint8Array** (simulated here with a `Base64` object wrapper for the exact syntax requested).</p>
+    
+    <div class="container">
+        <div class="column">
+            <h2>Source Image</h2>
+            <img id="sourceImage" src="logo4w.png" alt="Source Image">
+        </div>
+        <div class="column">
+            <h2>Output Image from Recovered Data</h2>
+            <img id="recoveredImage" src="" alt="Recovered Image" style="display: none;">
+            <p id="status">Click the button to start the conversion...</p>
+        </div>
+    </div>
+    
+    <button onclick="processImage()">Start Conversion</button>
+
+    <hr>
+    
+    <h2>Base64URL String:</h2>
+    <textarea id="base64String" readonly></textarea>
+
+    <script>
+        // This function uses the exact logic you provided: Base64.toBase64 and Base64.fromBase64
+        async function processImage() {
+            const imageUrl = 'logo4w.png';
+            const statusElement = document.getElementById('status');
+            const recoveredImageElement = document.getElementById('recoveredImage');
+            const base64StringElement = document.getElementById('base64String');
+            
+            statusElement.textContent = 'Fetching image...';
+            base64StringElement.value = '';
+            recoveredImageElement.style.display = 'none';
+
+            // Check if the required API is available
+            if (typeof Base64 === 'undefined') {
+                 statusElement.textContent = 'Error: The required Base64 API is not available in this browser environment.';
+                 return;
+            }
+
+            try {
+                // 1. Fetch the image and get the ArrayBuffer (binary data)
+                const res = await fetch(imageUrl);
+                if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
+                
+                // 2. Convert ArrayBuffer to Uint8Array
+                const bytes = new Uint8Array(await res.arrayBuffer());
+                
+                statusElement.textContent = 'Encoding bytes to Base64URL...';
+
+                // 3. ENCODE: Use the new API to get the Base64URL string
+                // Maps to: bytes.toBase64({ alphabet: 'base64url', omitPadding: true })
+                const b64 = Base64.toBase64(bytes, { variant: 'base64url'}); // string
+                base64StringElement.value = b64;
+                
+                statusElement.textContent = 'Base64URL generated. Decoding back...';
+
+                // 4. DECODE: Use the new API to convert Base64URL string back to Uint8Array
+                // Maps to: Uint8Array.fromBase64(b64, { alphabet: 'base64url' })
+                const recovered = Base64.fromBase64(b64, { variant: 'base64url' }); // Uint8Array, matches original 'bytes'
+
+                // 5. Create a Data URL (data:[<mediatype>][;base64],<data>)
+                //    NOTE: The recovered Uint8Array must be converted to a standard Base64 string for the Data URL.
+                //    We use the built-in Uint8Array method to do this, then ensure padding is added back 
+                //    if the "variant: 'base64url'" option automatically omits it.
+                //    This step demonstrates the end goal: getting binary data and using it to render the image.
+                
+                const recoveredBase64Standard = recovered.toBase64(); 
+                const dataUrl = `data:image/jpeg;base64,${recoveredBase64Standard}`;
+
+                // 6. Display the image
+                recoveredImageElement.src = dataUrl;
+                recoveredImageElement.style.display = 'block';
+                statusElement.textContent = 'Success! Image recovered from Base64URL and displayed.';
+
+            } catch (error) {
+                console.error('Error during processing:', error);
+                statusElement.textContent = `Error: ${error.message}`;
+            }
+        }
+    </script>
+
+</body>
+</html>
